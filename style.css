@@ -248,7 +248,7 @@ h2 {
 }
 .section-header p {
     font-size: 1.2rem;
-    color: var(--color-secondary);
+    color: var(--color-text-muted);
 }
 
 /* Home Section */
@@ -388,7 +388,7 @@ ethics
 .category-card {/*div any category alone*/
     background-color: var(--color-bg-card);
     border-radius: var(--radius-lg);
-    padding: 5px;
+    /*padding: 20px;*/
     text-align: center;
     box-shadow: var(--shadow-soft);
     position: relative;
