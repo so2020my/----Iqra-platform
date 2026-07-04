@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الشهادتان - براعم التوحيد</title>
+    <link rel="stylesheet" href="styleSection.css">
+    
+</head>
+<body>
+
+    <!-- Audio Elements -->
+    <audio id="audio1" src="audio/ما معتى شهادة أن لا إله إلا الله؟.mp3"></audio>
+    <audio id="audio2" src="audio/مامعنى شهادة أن محمد رسول الله؟.mp3"></audio>
+    <audio id="audio3" src="audio/شروط لا اله إلا الله؟.mp3"></audio>
+    <audio id="audio4" src="audio/سبعة.mp3"></audio>
+
+    <div class="shahada-container">
+        <!-- Home Button -->
+        <a href="index.html">
+            <img src="img\عودة.png" alt="العودة للرئيسية" class="home-btn" title="العودة لشجرة التوحيد">
+        </a>
+
+        <!-- Title -->
+        <h1 class="page-title">الشهادتان</h1>
+
+        <!-- Cards -->
+        <div class="card-list">
+            
+            <!-- Card 1 -->
+            <div class="card-item" onclick="playSound('audio1', this)">
+                <img src="img/شهادة ان لا اله الا الله.png"  class="sound-btn" alt="شهادة أن لا إله إلا الله">
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card-item" onclick="playSound('audio2', this)">
+                <img src="img/شهادة ان محمد رسول الله.png" class="sound-btn" alt="شهادة أن محمد رسول الله">
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card-item" onclick="playSound('audio3', this)">
+                <img src="img/شروط لا اله الا الله.png" class="sound-btn" alt="شروط لا إله إلا الله">
+            </div>
+
+            <!-- Card 4 (هيا ننشد) -->
+            <div class="card-item small-card" onclick="playSound('audio4', this)">
+                <img src="img/هيا ننشد.png" class="sound-btn" alt="هيا ننشد">
+            </div>
+            
+        </div>
+    </div>
+    <script src="scriptSection.js"></script>
+
+</body>
+</html>

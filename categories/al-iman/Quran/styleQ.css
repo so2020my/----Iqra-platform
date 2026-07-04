@@ -1,0 +1,170 @@
+ @font-face {
+     font-family: 'Aref Ruqaa';
+     src: url('../fonts/aref-regular.ttf') format('truetype');
+ }
+
+ @font-face {
+     font-family: 'Tajawal';
+     src: url('../fonts/Tajawal-Bold.ttf') format('truetype');
+     font-weight: 700;
+ }
+
+ @font-face {
+     font-family: 'Tajawal';
+     src: url('../fonts/Tajawal-ExtraBold.ttf') format('truetype');
+     font-weight: 800;
+ }
+
+ .interactive-scene {
+     position: relative;
+     width: 100%;
+     max-width: 600px;
+     margin: 0 auto;
+     overflow: hidden;
+     border-radius: 20px;
+     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+     background-color: #87CEEB;
+     /* Fallback sky color */
+ }
+
+ .bg-img {
+     width: 100%;
+     display: block;
+     /*height: auto;*/
+     min-height: 70vh;
+ }
+
+ /* Overlay texts for the tree */
+ .circle-text {
+     position: absolute;
+     width: 16%;
+     /* Relative to the container width */
+     height: 10%;
+     /* Relative to the container height, approx circle size */
+     display: flex;
+     align-items: center;
+     justify-content: center;
+     text-align: center;
+     font-family: 'Tajawal', sans-serif;
+     font-weight: 800;
+     font-size: 2.6vw;
+     color: #2e7d32;
+     cursor: pointer;
+     text-decoration: none;
+     /* Remove link underline */
+     transition: all 0.3s ease;
+     z-index: 10;
+ }
+
+ /* Responsive text sizes inside circles */
+ @media (min-width: 600px) {
+     .circle-text {
+         font-size: 17px;
+     }
+ }
+
+ .circle-text:hover {
+     transform: scale(1.1);
+     color: #1b5e20;
+     text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+ }
+
+ /* Positioning each circle (Percentages based on standard 9:16 portrait image) 
+           Note: Adjusting these percentages to match the tree leaves in the image.
+           The coordinates are roughly estimated from the top right for RTL, but using left/top is standard. 
+           Let's use top and left. */
+
+ /* Top Row */
+ .circle-1 {
+     top: 12.5%;
+     left: 27%;
+ }
+
+ /* الشهادتان */
+
+
+ /* Middle Row */
+ .circle-2 {
+     top: 22.5%;
+     left: 12.5%;
+ }
+
+ /* بما عرفت ربك */
+ .circle-3 {
+     top: 23.5%;
+     left: 28%;
+ }
+
+ /* الأصول الثلاثة */
+ .circle-4 {
+     top: 23%;
+     left: 42.5%;
+ }
+
+ /* أين الله */
+
+ /* Bottom Row */
+ .circle-5 {
+     top: 34%;
+     left: 28%;
+ }
+
+ /* أقسام التوحيد */
+
+
+ /* Board Text */
+ .board-text {
+     position: absolute;
+     top: 55%;
+     left: 20%;
+     width: 40%;
+     text-align: center;
+     transform: rotate(-3deg);
+     z-index: 10;
+ }
+
+ .board-text p {
+     font-family: 'Tajawal', sans-serif;
+     font-weight: 700;
+     font-size: 3vw;
+     color: #3e2723;
+     line-height: 1.4;
+     margin-bottom: 5px;
+ }
+
+ .board-text h2 {
+     font-family: 'Aref Ruqaa', serif;
+     font-size: 5vw;
+     color: #fff;
+     text-shadow:
+         0 0 5px #ffb300,
+         0 0 10px #fb8c00,
+         2px 2px 4px rgba(0, 0, 0, 0.5);
+     margin: 0;
+     white-space: nowrap;
+ }
+
+ @media (min-width: 600px) {
+     .board-text p {
+         font-size: 16px;
+     }
+
+     .board-text h2 {
+         font-size: 28px;
+     }
+ }
+
+ /* Page layout */
+ .page-wrapper {
+     padding: 40px 20px;
+     display: flex;
+     justify-content: center;
+ }
+
+ /* Hide text inside circles in the DOM if they are already baked into the image.
+           If the user wants them as interactive HTML text, I will keep them.
+           Since the prompt says "صمم على الصورة هذه" it means put design OVER the image.
+           I will add the text and let it sit on top. If the image has empty circles, it fills perfectly.
+           If the image already has text, the HTML text might overlap. I'll make the HTML text transparent
+           but interactive, or just display the image directly if they just want the image.
+           Let's assume the user wants interactive text on top! */

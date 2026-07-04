@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة اقرأ - واحة الأخلاق</title>
+     <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="../../img/شعار برنامج قلم (2).png" alt="icon" class="logo-icon">
+                <div class="logo-text">
+                    <h1>منصة اقرأ</h1>
+                    <p>اقرأ بها بدأ الوحي...وبها تبنى الأجيال</p>
+                </div>
+            </div>
+
+            <nav class="nav-links" id="nav-links">
+                <a href="../../index.html" class="nav-link">الرئيسية</a>
+                <a href="../../categories.html" class="nav-link active">الأقسام</a>
+                <a href="../../about.html" class="nav-link">من نحن</a>
+                <button id="nav-login-btn" class="btn btn-outline">تسجيل الدخول</button>
+            </nav>           
+                <button id="mobile-menu-btn" class="control-btn mobile-only">
+                  ☰
+                </button>           
+        </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main class="main-content">
+        <!-- Categories Section -->
+       
+            <div class="container">
+                <!-- Toast Message -->
+                <div id="login-toast" class="toast">
+                    <p>إذا كنت ترغب في متابعة تقدمك، يرجى تسجيل الدخول.</p>
+                    <button id="toast-login-btn" class="btn btn-small btn-primary">تسجيل الدخول</button>
+                </div>
+
+                <div class="section-header"><!--header catogries-->
+                    <h2>أهلاً بكم في واحة الأخلاق</h2>
+                    <p>في هذه الرحلة نتعلّم الصدق والاحترام واللطف، ونقطف من كل قيمةٍ خلقًا جميلًا يزين سلوكنا <br>هيا بنا ننطلق!</p>
+                </div>
+
+                <div class="categories-grid">
+                    <!-- Card 1 -->
+                    <div class="category-card">
+                        <video style="width: 100%;" controls>
+                            <source src="vid/الصدقة.mp4">
+                        </video>
+                          <h3>الصدقة</h3>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="category-card">
+                        <video style="width: 100%;" controls>
+                            <source src="vid/بائعة اللبن.mp4">
+                        </video>
+                          <h3>بائعة اللبن</h3>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="category-card">
+                        <video style="width: 100%;" controls>
+                            <source src="vid/بلال بن رباح.mp4">
+                        </video>
+                          <h3>بلال بن رباح</h3>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="category-card">
+                        <video style="width: 100%;" controls>
+                            <source src="vid/مساعدة المحتاج.mp4">
+                        </video>
+                        <h3>مساعدة المحتاج</h3>
+                    </div>
+                    <!-- Card 5 -->
+                     <div class="category-card" id="five">
+                        <a href="pdf/غراس القيم.pdf" target="_blank" class="lock">
+                        <img src="img/غراس القيم.jpg">
+                        </a>
+                          <h3>غراس القيم</h3>
+                    </div>
+                </div>
+            </div>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 منصة اقرأ. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+     <!-- Login Modal -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-modal-btn" class="close-btn play-sound-click"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>تسجيل الدخول <i class="fa-solid fa-user-astronaut"></i></h2>
+                <p>مرحباً بك مجدداً يا بطل!</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="name">الاسم</label>
+                    <input type="text" id="name" required placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label for="password">رقم المرور</label>
+                    <input type="password" id="password" minlength="6" maxlength="12" required placeholder="********">
+                </div>
+                <button type="submit" class="btn btn-primary btn-large btn-block play-sound-click">دخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="../../script.js"></script>
+</body>
+</html>

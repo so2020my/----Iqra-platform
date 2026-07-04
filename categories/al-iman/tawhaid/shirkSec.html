@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>أقسام الشرك - براعم التوحيد</title>
+    <link rel="stylesheet" href="styleSection.css">
+    
+</head>
+<body>
+
+    <!-- Audio Elements -->
+    <audio id="audio1" src="audio\اقسام الشرك.mp3"></audio>
+    <audio id="audio2" src="audio\عرف اقسام الشرك؟.mp3"></audio>
+    <audio id="audio4" src="audio\نشيد الشرك.mp3"></audio>
+
+    <div class="shahada-container">
+        <!-- Home Button -->
+        <a href="index.html">
+            <img src="img\عودة.png" alt="العودة للرئيسية" class="home-btn" title="العودة لشجرة التوحيد">
+        </a>
+
+        <!-- Title -->
+        <h1 class="page-title">أقسام الشرك</h1>
+
+        <!-- Cards -->
+        <div class="card-list">
+            
+            <!-- Card 1 -->
+            <div class="card-item" onclick="playSound('audio1', this)">
+                <img src="img\أقسام الشرك.png" class="sound-btn" alt="أقسام الشرك">
+            </div>
+
+            <!-- Card 2 -->
+            <div class="card-item" onclick="playSound('audio2', this)">
+                <img src="img\تعريف أقسام الشرك.png" class="sound-btn" alt="تعريف أقسام الشرك">
+            </div>
+
+
+            <!-- Card 4 (هيا ننشد) -->
+            <div class="card-item small-card" onclick="playSound('audio4', this)">
+                <img src="img/هيا ننشد.png" class="sound-btn" alt="هيا ننشد">
+            </div>
+            
+        </div>
+    </div>
+    <script src="scriptSection.js"></script>
+
+</body>
+</html>

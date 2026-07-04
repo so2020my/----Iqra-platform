@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة اقرأ - Iqraa Platform</title>
+     <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../../style.css">
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header class="header">
+        <div class="container header-content">
+            <div class="logo">
+                <img src="../../img/شعار برنامج قلم (2).png" alt="icon" class="logo-icon">
+                <div class="logo-text">
+                    <h1>منصة اقرأ</h1>
+                    <p>اقرأ بها بدأ الوحي...وبها تبنى الأجيال</p>
+                </div>
+            </div>
+
+            <nav class="nav-links" id="nav-links">
+                <a href="../../index.html" class="nav-link">الرئيسية</a>
+                <a href="../../categories.html" class="nav-link active">الأقسام</a>
+                <a href="../../about.html" class="nav-link">من نحن</a>
+                <button id="nav-login-btn" class="btn btn-outline">تسجيل الدخول</button>
+            </nav>           
+                <button id="mobile-menu-btn" class="control-btn mobile-only">
+                  ☰
+                </button>           
+        </div>
+    </header>
+
+    <!-- Main Content Sections -->
+    <main class="main-content">
+        <!-- Categories Section -->
+       
+            <div class="container">
+
+                <div class="section-header"><!--header catogries-->
+                    <h2> أهلاً بكم في بستان الإيمان</h2>
+                    <p>في هذه الرحلة نغرس في قلوبنا حبّ الله، ونقطف ثمار الطمأنينة والعمل الصالح، ونزداد يقينًا في كل خطوة <br>هيا بنا ننطلق!</p>
+                </div>
+
+                    <div class="category-card" style="position: absolute; max-width: 10%; height: auto; top:15%; left: 5%; border-radius: var(--radius-sm);" title="اضغط لتحميل التطبيق من هنا">
+                        <a href="app-debug.apk" target="_blank">
+                        <img class="categories-img" src="../../img/بستان الإيمان.png" style="border-radius: var(--radius-sm);">
+                        </a>
+                    </div>
+
+                <div class="categories-grid">
+                    <!-- Card 1 -->
+                    <div class="category-card">
+                        <a href="Quran/index.html" target="_blank">
+                        <img src="img/براعم القران.png">
+                        </a>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="category-card">
+                        <a href="tawhaid/index.html" target="_blank">
+                        <img class="categories-img" src="img/براعم التوحيد.png">
+                        </a>
+                    </div>
+                    <!-- Card 3 -->
+                    <div class="category-card">
+                        <a href="rasool/index.html" target="_blank">
+                        <img class="categories-img" src="img/علمني رسول الله صلى الله عليه وسلم.png">
+                        </a>
+                    </div>
+                    <!-- Card 4 -->
+                    <div class="category-card">
+                        <a href="pdf/منهج براعم القرآن.pdf" target="_blank" class="lock">
+                        <img class="categories-img" src="img/منهج براعم القرآن.JPG">
+                        </a>
+                    </div>
+                    <!-- Card 5 -->
+                    <div class="category-card">
+                        <a href="pdf/منهج براعم التوحيد.pdf" target="_blank" class="lock">
+                        <img class="categories-img" src="img/منهج براعم التوحيد.JPG">
+                        </a>
+                    </div>
+                    <!-- Card 6 -->
+                    <div class="category-card">
+                        <a href="pdf/منهج علمني رسول الله صلى الله عليه وسلم.pdf" target="_blank" class="lock">
+                        <img class="categories-img" src="img/منهج علمني رسول الله صلى الله عليه وسلم.JPG">
+                        </a>
+                    </div>
+                </div>
+            </div>
+        
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2026 منصة اقرأ. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+     <!-- Login Modal -->
+    <div id="modal-overlay" class="modal-overlay hidden">
+        <div class="modal">
+            <button id="close-modal-btn" class="close-btn play-sound-click"><i class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <h2>تسجيل الدخول <i class="fa-solid fa-user-astronaut"></i></h2>
+                <p>مرحباً بك مجدداً يا بطل!</p>
+            </div>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="name">الاسم</label>
+                    <input type="text" id="name" required placeholder="أدخل اسمك">
+                </div>
+                <div class="form-group">
+                    <label for="password">رقم المرور</label>
+                    <input type="password" id="password" minlength="6" maxlength="12" required placeholder="********">
+                </div>
+                <button type="submit" class="btn btn-primary btn-large btn-block play-sound-click">دخول</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script -->
+    <script src="../../script.js"></script>
+</body>
+</html>

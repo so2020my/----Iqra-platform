@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الأصول الثلاثة - براعم التوحيد</title>
+    <link rel="stylesheet" href="styleSection.css">
+    
+</head>
+<body>
+
+    <!-- Audio Elements -->
+    <audio id="audio1" src="audio\من ربك؟.mp3"></audio>
+    <audio id="audio2" src="audio\مادينك؟.mp3"></audio>
+    <audio id="audio3" src="audio\من نبيك ؟.mp3"></audio>
+    <audio id="audio4" src="audio\الاصول.mp3"></audio>
+
+    <div class="shahada-container">
+        <!-- Home Button -->
+        <a href="index.html">
+            <img src="img\عودة.png" alt="العودة للرئيسية" class="home-btn" title="العودة لشجرة التوحيد">
+        </a>
+
+        <!-- Title -->
+        <h1 class="page-title">الأصول الثلاثة</h1>
+
+        <!-- Cards -->
+        <div class="card-list">
+            
+            <!-- Card 1 -->
+            <div class="card-item" onclick="playSound('audio1', this)">
+                <img src="img\من ربك؟.png" class="sound-btn" alt="من ربك؟">
+            </div>
+
+            <!-- Card 2 -->
+             <div class="card-item" onclick="playSound('audio2', this)">
+                <img src="img\مادينك؟.png" class="sound-btn" alt="مادينك؟">
+            </div>
+
+            <!-- Card 3 -->
+            <div class="card-item" onclick="playSound('audio3', this)">
+                <img src="img\من نبيك؟.png" class="sound-btn" alt="من نبيك؟">
+            </div>
+
+            <!-- Card 4 (هيا ننشد) -->
+            <div class="card-item small-card" onclick="playSound('audio4', this)">
+                <img src="img/هيا ننشد.png" class="sound-btn" alt="هيا ننشد">
+            </div>
+            
+        </div>
+    </div>
+    <script src="scriptSection.js"></script>
+
+</body>
+</html>
