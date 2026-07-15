@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>رحلة الحروف</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <section id="homeScreen" class="screen active">
+        <div class="top-stats">
+          <div class="stat-pill"><span>⭐</span><strong id="starCount">0</strong></div>
+          <div class="stat-pill"><span>🏅</span><strong id="badgeCount">0</strong></div>
+        </div>
+
+        <div class="card hero-card">
+          <img src="شعار برنامج قلم (2).png" alt="" class="logo-badge">
+          <h1>رحلة الحروف</h1>
+          <p>هيا يا بطل ! انطلق في مغامرة ممتعة بين الحروف ، تعلم أصواتها ، اكتشف أشكالها ، واجمع النجوم مع كل إجابة صحيحة</p>
+          <div class="hero-letters">مع منصة اقرأ حين يصبح التعلم لعبة ممتعة</div>
+          <div class="progress-block">
+            <div class="progress-track"><div id="progressFill" class="progress-fill"></div></div>
+            <div class="progress-label">التقدم <span id="progressText">0%</span></div>
+          </div>
+          <div class="button-stack">
+            <button type="button" id="startBtn" class="btn primary">ابدأ</button>
+            <button type="button" id="stageBtn" class="btn secondary">اختيار المرحلة</button>
+          </div>
+        </div>
+
+        <button type="button" id="settingsBtn" class="btn settings">دليل اللعبة</button>
+        <p class="helper-text" id="completionText">تم إكمال 0 من 28 حرفًا</p>
+      </section>
+
+      <section id="guideScreen" class="screen">
+        <div class="card guide-card">
+          <button type="button" id="backGuideBtn" class="back-btn">←</button>
+          <div class="chip-label">دليل اللعبة</div>
+          <h3>كيف تلعب لعبة رحلة الحروف</h3>
+          <div class="guide-list">
+            <div class="guide-item">
+<strong>الرئيسية:</strong> تتيح لك تصفح جميع مراحل اللعبة، كما تحتوي على دليل اللعبة الإرشادي الذي يشرح طريقة اللعب. من هنا يمكنك مشاهدة عدد النجوم والأوسمة التي حصلت عليها، والضغط على "ابدأ" للانتقال إلى آخر مرحلة توقفت عندها، أو اختيار أي مرحلة للبدء.
+</div>
+
+<div class="guide-item">
+<strong>تعلم الحرف:</strong> تستعرض الحرف بطريقة ممتعة، مع عرض صوره وأشكاله المختلفة، ويمكنك الضغط على الصورة لسماع نطق الكلمة والتعرف عليها.
+</div>
+
+<div class="guide-item">
+<strong>تحدي الحرف:</strong> يتكون من ثلاثة تمارين ممتعة لكل حرف:
+<ul>
+<li><strong>الجزء الأول:</strong> اصطد 4 بالونات تحمل الحرف الصحيح من بين مجموعة من البالونات المتنوعة.</li>
+<li><strong>الجزء الثاني:</strong> اختر الصورة التي تحتوي على الحرف المطلوب في موضعه الصحيح (بداية الكلمة، وسطها، أو نهايتها).</li>
+<li><strong>الجزء الثالث:</strong> اختر الكلمة التي تحتوي على الحرف المطلوب في موضعه الصحيح (بداية الكلمة، وسطها، أو نهايتها).</li>
+</ul>
+</div>
+
+<div class="guide-item">
+<strong>مدينة الألعاب:</strong> تظهر في مرحلة التحدي بعد إكمال أربع مراحل، حيث تختبر مهارات الطفل في الحروف الأربعة السابقة من خلال ثلاث ألعاب متنوعة:
+<ul>
+<li>اصطد جميع الحروف الصحيحة المطلوبة.</li>
+<li>اختر الصورة التي تحتوي على الحرف في الموضع الصحيح.</li>
+<li>اختر الكلمة الصحيحة التي تحتوي على الحرف في الموضع الصحيح.</li>
+</ul>
+</div>
+
+<div class="guide-item">
+<strong>حساب النجوم:</strong> تحصل على نجمة واحدة عند كل إجابة صحيحة في تحدي الحرف، وتُخصم نجمة واحدة عند الإجابة الخاطئة. مجموع النجوم لكل تحدٍ هو 10 نجوم.
+</div>
+
+<div class="guide-item">
+<strong>الوسام:</strong> عند إكمال تحدي الحرف بنجاح والحصول على 10 نجوم، تحصل على وسام ذهبي يُضاف إلى رصيد الأوسمة في الصفحة الرئيسية.
+</div>
+
+<div class="guide-item">
+<strong>التقييم والجوائز:</strong> بعد إكمال جميع مراحل اللعبة، يتم تقييم مستوى اللاعب بناءً على عدد النجوم والأوسمة التي جمعها، مع فرصة الفوز بجوائز للمتميزين.
+</div>
+</div>
+      </section>
+
+      <section id="stageSelectScreen" class="screen">
+        <div class="card stage-card" style="position: relative;">
+          <button type="button" id="backStageSelectBtn" class="back-btn">←</button>
+          <div class="section-title" style="margin-bottom: 16px; font-size: 1.5rem; font-weight: bold; text-align: center;">اختيار المرحلة</div>
+          <div id="stageList" class="stage-list"></div>
+        </div>
+      </section>
+
+      <section id="learnScreen" class="screen">
+        <div class="card learn-card">
+          <button type="button" id="backHomeBtn" class="back-btn">←</button>
+          <div class="chip-label">مرحلة التعلم</div>
+          <h2 id="learnTitle">حرف أ</h2>
+          <div id="learnLetter" class="big-letter">أ</div>
+          <div id="shapeRow" class="shape-row"></div>
+          <button type="button" id="speakBtn" class="icon-btn">🔊</button>
+          <p class="hint">اضغط على الصورة لتسمع الكلمة</p>
+          <div id="imageGrid" class="image-grid"></div>
+          <button type="button" id="challengeBtn" class="btn primary wide">ابدأ التحدي</button>
+        </div>
+      </section>
+
+      <section id="challengeScreen" class="screen">
+        <div class="card challenge-card">
+          <div class="score-row" style="justify-content: center;">
+            <div class="score-pill gold">النجوم <span id="starValue">0</span></div>
+          </div>
+          <div class="challenge-header">
+            <h3 id="challengeTitle">اصطد الحرف</h3>
+            <p id="challengeInstruction">اختر الحرف الصحيح</p>
+          </div>
+          <div id="challengeArena" class="challenge-arena"></div>
+        </div>
+      </section>
+
+      <section id="stageChallengeScreen" class="screen">
+        <div class="card stage-challenge-card">
+          <button type="button" id="backStageChallengeBtn" class="back-btn">←</button>
+          <div class="chip-label">مدينة الألعاب</div>
+          <h3>مرحلة التحدي</h3>
+          <p>أكمل ثلاث ألعاب ممتعة مع الحروف السابقة</p>
+          <div id="stageActivityList" class="stage-activity-list"></div>
+        </div>
+      </section>
+
+      <section id="finishScreen" class="screen">
+        <div class="card finish-card">
+          <h2 id="finishTitle">أحسنت يا بطل لقد أنهيت حرف أ</h2>
+          <div class="celebration">🎉🎉🎉</div>
+          
+          <h2 id="finishTitle">التقط صورة لإنجازك وارسلها لمعلمتك عبر الواتساب كواجب منزلي</h2>
+          <p id="finishScore">10 / 10</p>
+          <div id="finishMedal" class="medal">وسام ذهبي</div>
+          <button type="button" id="finishBtn" class="btn primary">العودة للرئيسية</button>
+        </div>
+      </section>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
