@@ -63,41 +63,161 @@ let score = 0;
 let completedLetters = [];
 let currentRound = 0;
 let pendingStageChallenge = false;
-let currentStageActivity = 0;
+let currentStageActivity = null;
 let stageProgress = 0;
 let currentStageLetters = [];
 let stageChallengeRound = 0;
 let stageChallengeMaxRounds = 0;
 let stageChallengeMode = '';
+let balloonRemaining = 4;
+let currentScreen = 'home';
+let currentChallengeSnapshot = null;
+let currentStageSnapshot = null;
 
 const STORAGE_KEY = 'alphapetProgress';
+
+function getDefaultStageState() {
+  return {
+    active: false,
+    score: 0,
+    currentRound: 0,
+    balloonRemaining: 4,
+    currentStageActivity: null,
+    stageProgress: 0,
+    currentStageLetters: [],
+    stageChallengeRound: 0,
+    stageChallengeMaxRounds: 0,
+    stageChallengeMode: '',
+    challengeSnapshot: null,
+    stageSnapshot: null,
+  };
+}
+
+function resetStageProgressState() {
+  score = 0;
+  currentRound = 0;
+  balloonRemaining = 4;
+  currentStageActivity = null;
+  stageProgress = 0;
+  currentStageLetters = [];
+  stageChallengeRound = 0;
+  stageChallengeMaxRounds = 0;
+  stageChallengeMode = '';
+  currentChallengeSnapshot = null;
+  currentStageSnapshot = null;
+}
+
+function buildPlayerPayload() {
+  return {
+    completedLetters,
+    stars,
+    badges,
+    currentLetterIndex,
+    currentScreen,
+  };
+}
+
+function getNextLetterIndex() {
+  const currentLetterId = letters[currentLetterIndex]?.id;
+  const isCurrentLetterCompleted = Boolean(currentLetterId && completedLetters.includes(currentLetterId));
+  const firstUncompleted = letters.findIndex((letter) => !completedLetters.includes(letter.id));
+
+  if (isCurrentLetterCompleted) {
+    return firstUncompleted === -1 ? 0 : firstUncompleted;
+  }
+
+  return currentLetterIndex;
+}
+
+function buildStagePayload() {
+  const hasActiveStageProgress = currentScreen === 'challenge' || currentScreen === 'stage' || currentStageActivity !== null || currentRound > 0 || stageChallengeRound > 0 || stageProgress > 0 || balloonRemaining < 4 || Boolean(currentChallengeSnapshot) || Boolean(currentStageSnapshot);
+  return {
+    active: hasActiveStageProgress,
+    score,
+    currentRound,
+    balloonRemaining,
+    currentStageActivity,
+    stageProgress,
+    currentStageLetters: currentStageLetters.map((item) => item.id),
+    stageChallengeRound,
+    stageChallengeMaxRounds,
+    stageChallengeMode,
+    challengeSnapshot: currentChallengeSnapshot,
+    stageSnapshot: currentStageSnapshot,
+  };
+}
 
 function loadProgress() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return;
+    if (!raw) {
+      resetStageProgressState();
+      return;
+    }
+
     const saved = JSON.parse(raw);
-    completedLetters = Array.isArray(saved.completedLetters) ? saved.completedLetters : [];
-    stars = typeof saved.stars === 'number' ? saved.stars : 0;
-    badges = typeof saved.badges === 'number' ? saved.badges : 0;
-    currentLetterIndex = typeof saved.currentLetterIndex === 'number' ? saved.currentLetterIndex : 0;
+    const playerData = saved.playerState || {};
+    const stageData = saved.stageState || {};
+
+    completedLetters = Array.isArray(playerData.completedLetters) ? playerData.completedLetters : Array.isArray(saved.completedLetters) ? saved.completedLetters : [];
+    stars = typeof playerData.stars === 'number' ? playerData.stars : typeof saved.stars === 'number' ? saved.stars : 0;
+    badges = typeof playerData.badges === 'number' ? playerData.badges : typeof saved.badges === 'number' ? saved.badges : 0;
+    currentLetterIndex = typeof playerData.currentLetterIndex === 'number' ? playerData.currentLetterIndex : typeof saved.currentLetterIndex === 'number' ? saved.currentLetterIndex : 0;
+    currentScreen = typeof playerData.currentScreen === 'string' ? playerData.currentScreen : typeof saved.currentScreen === 'string' ? saved.currentScreen : 'home';
+
+    if (stageData && typeof stageData === 'object') {
+      score = typeof stageData.score === 'number' ? stageData.score : 0;
+      currentRound = typeof stageData.currentRound === 'number' ? stageData.currentRound : 0;
+      balloonRemaining = typeof stageData.balloonRemaining === 'number' ? stageData.balloonRemaining : 4;
+      currentStageActivity = typeof stageData.currentStageActivity === 'number' ? stageData.currentStageActivity : null;
+      stageProgress = typeof stageData.stageProgress === 'number' ? stageData.stageProgress : 0;
+      stageChallengeRound = typeof stageData.stageChallengeRound === 'number' ? stageData.stageChallengeRound : 0;
+      stageChallengeMaxRounds = typeof stageData.stageChallengeMaxRounds === 'number' ? stageData.stageChallengeMaxRounds : 0;
+      stageChallengeMode = typeof stageData.stageChallengeMode === 'string' ? stageData.stageChallengeMode : '';
+      currentChallengeSnapshot = stageData.challengeSnapshot || null;
+      currentStageSnapshot = stageData.stageSnapshot || null;
+      if (Array.isArray(stageData.currentStageLetters)) {
+        currentStageLetters = stageData.currentStageLetters
+          .map((id) => letters.find((item) => item.id === id))
+          .filter(Boolean);
+      } else {
+        currentStageLetters = [];
+      }
+    } else {
+      resetStageProgressState();
+    }
   } catch (error) {
     console.warn('Failed to load saved progress:', error);
+    resetStageProgressState();
   }
 }
 
 function saveProgress() {
   try {
     const payload = {
-      completedLetters,
-      stars,
-      badges,
-      currentLetterIndex,
+      playerState: buildPlayerPayload(),
+      stageState: buildStagePayload(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) {
     console.warn('Failed to save progress:', error);
   }
+}
+
+function clearCurrentStageState() {
+  // عند إنهاء المرحلة بنجاح، نزيل بيانات المرحلة الحالية فقط مع إبقاء بيانات اللاعب العامة intact.
+  score = 0;
+  currentRound = 0;
+  balloonRemaining = 4;
+  currentStageActivity = null;
+  stageProgress = 0;
+  currentStageLetters = [];
+  stageChallengeRound = 0;
+  stageChallengeMaxRounds = 0;
+  stageChallengeMode = '';
+  currentChallengeSnapshot = null;
+  currentStageSnapshot = null;
+  saveProgress();
 }
 
 const homeScreen = document.getElementById('homeScreen');
@@ -159,9 +279,28 @@ function renderHome() {
       chip.innerHTML = `<span>مرحلة ${index + 1}: ${letter.letter}</span><span>${isUnlocked ? '▶' : '🔒'}</span>`;
       chip.onclick = () => {
         if (!isUnlocked) return;
+        const previousLetterId = letters[currentLetterIndex]?.id;
         currentLetterIndex = index;
-        score = 0;
-        starValue.textContent = '0';
+        const currentLetter = letters[currentLetterIndex];
+        const shouldRestoreScore = previousLetterId === currentLetter.id && (
+          (currentChallengeSnapshot && currentChallengeSnapshot.letterId === currentLetter.id) ||
+          currentStageActivity !== null ||
+          currentRound > 0 ||
+          stageChallengeRound > 0 ||
+          stageProgress > 0 ||
+          balloonRemaining < 4 ||
+          score > 0
+        );
+
+        if (shouldRestoreScore) {
+          const restoredScore = typeof currentChallengeSnapshot?.score === 'number' ? currentChallengeSnapshot.score : score;
+          score = restoredScore;
+          starValue.textContent = score.toString();
+        } else {
+          score = 0;
+          starValue.textContent = '0';
+        }
+
         saveProgress();
         renderLearn();
         showScreen('learn');
@@ -184,6 +323,16 @@ function renderHome() {
       chalChip.onclick = () => {
         if (!isChallengeUnlocked) return;
         const recentLetters = letters.slice(groupIndex * 4, groupIndex * 4 + 4);
+        currentStageLetters = recentLetters.slice(0, 4);
+        currentStageActivity = null;
+        stageProgress = 0;
+        stageChallengeRound = 0;
+        stageChallengeMaxRounds = 0;
+        stageChallengeMode = '';
+        currentChallengeSnapshot = null;
+        currentStageSnapshot = null;
+        starValue.textContent = score.toString();
+        saveProgress();
         renderStageActivities(recentLetters);
         showScreen('stage');
       };
@@ -231,52 +380,96 @@ function renderLearn() {
   });
 }
 
-function startChallenge() {
+function resetMainChallengeState() {
+  // عند بدء تحدي جديد، نعيد تهيئة المرحلة الحالية فقط دون لمس النجوم العامة أو الأوسمة.
   score = 0;
   currentRound = 0;
+  balloonRemaining = 4;
+  currentStageActivity = null;
+  stageProgress = 0;
+  currentStageLetters = [];
+  stageChallengeRound = 0;
+  stageChallengeMaxRounds = 0;
+  stageChallengeMode = '';
+  currentChallengeSnapshot = null;
+  currentStageSnapshot = null;
   starValue.textContent = '0';
+}
+
+function startChallenge() {
+  const hasSavedProgress = Boolean(currentChallengeSnapshot) || currentStageActivity !== null || currentRound > 0 || stageChallengeRound > 0 || stageProgress > 0 || balloonRemaining < 4;
+
+  if (!hasSavedProgress) {
+    resetMainChallengeState();
+  }
+
   showScreen('challenge');
   showChallengeRound();
+  saveProgress();
 }
 
 function showChallengeRound() {
   const letter = letters[currentLetterIndex];
+  const snapshot = currentChallengeSnapshot;
+
   if (currentRound === 0) {
     challengeTitle.textContent = 'اصطد الحرف';
     challengeInstruction.textContent = `اختر الحرف ${letter.letter} (اصطد 4 بالونات)`;
-    renderBalloonChallenge();
+    renderBalloonChallenge(snapshot && snapshot.type === 'balloon' ? snapshot : null);
   } else if (currentRound >= 1 && currentRound <= 3) {
     challengeTitle.textContent = 'اختر الصورة';
     const positions = ['في أول الكلمة', 'في وسط الكلمة', 'في آخر الكلمة'];
     challengeInstruction.textContent = `اختر الصورة التي تحتوي الحرف ${positions[currentRound - 1]}`;
-    renderImageChallenge(currentRound - 1);
+    renderImageChallenge(currentRound - 1, snapshot && snapshot.type === 'image' ? snapshot : null);
   } else if (currentRound >= 4 && currentRound <= 6) {
     challengeTitle.textContent = 'اختر الكلمة';
     const positions = ['في أول الكلمة', 'في وسط الكلمة', 'في آخر الكلمة'];
     challengeInstruction.textContent = `اختر الكلمة التي تحتوي الحرف ${positions[currentRound - 4]}`;
-    renderWordChallenge(currentRound - 4);
+    renderWordChallenge(currentRound - 4, snapshot && snapshot.type === 'word' ? snapshot : null);
   }
 }
 
-let poppedBalloons = 0;
-
-function renderBalloonChallenge() {
- 
-  poppedBalloons = 0;
-  const letter = letters[currentLetterIndex];
-  const correctCount = 4;
+function generateBalloonOptions(letter) {
+  const correctCount = Math.max(1, balloonRemaining);
   const wrongCount = 10;
   const wrongLetters = letters.filter((item) => item.letter !== letter.letter).map((item) => item.letter);
-
   const balloons = Array.from({ length: correctCount }, () => ({ val: letter.letter, isCorrect: true })).concat(
     Array.from({ length: wrongCount }, () => ({ val: wrongLetters[Math.floor(Math.random() * wrongLetters.length)], isCorrect: false }))
   );
+  return balloons.sort(() => Math.random() - 0.5);
+}
 
-  const shuffled = balloons.sort(() => Math.random() - 0.5);
+function renderBalloonChallenge(snapshot = null) {
+  const letter = letters[currentLetterIndex];
+  const initialBalloonCount = 4;
+
+  if (!Number.isFinite(balloonRemaining) || balloonRemaining <= 0) {
+    balloonRemaining = initialBalloonCount;
+  }
+
+  let balloons = snapshot && Array.isArray(snapshot.options) ? snapshot.options : generateBalloonOptions(letter);
+  let answeredIndices = Array.isArray(snapshot && snapshot.answeredIndices) ? snapshot.answeredIndices : [];
+  if (snapshot && typeof snapshot.balloonRemaining === 'number') {
+    balloonRemaining = snapshot.balloonRemaining;
+  }
+
+  currentChallengeSnapshot = {
+    type: 'balloon',
+    letterId: letter.id,
+    currentRound,
+    score,
+    balloonRemaining,
+    answeredIndices,
+    options: balloons.map((item) => ({ val: item.val, isCorrect: item.isCorrect })),
+  };
+
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="balloons"></div>';
   const arena = challengeArena.querySelector('.balloons');
+  challengeInstruction.textContent = `اختر الحرف ${letter.letter} (تبقى ${balloonRemaining})`;
 
-  shuffled.forEach((item) => {
+  balloons.forEach((item, index) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'balloon';
@@ -285,28 +478,47 @@ function renderBalloonChallenge() {
     btn.style.animationDuration = `${5 + Math.random() * 3}s`;
     btn.textContent = item.val;
 
+    if (answeredIndices.includes(index)) {
+      btn.dataset.answered = 'true';
+      btn.style.display = 'none';
+      arena.appendChild(btn);
+      return;
+    }
+
     btn.onclick = () => {
       if (btn.dataset.answered) return;
       if (item.isCorrect) {
         btn.dataset.answered = 'true';
-        poppedBalloons += 1;
+        answeredIndices = [...new Set([...answeredIndices, index])];
+        balloonRemaining -= 1;
         score = Math.min(10, score + 1);
         starValue.textContent = score.toString();
+        currentChallengeSnapshot = {
+          ...currentChallengeSnapshot,
+          score,
+          balloonRemaining,
+          answeredIndices,
+          options: balloons.map((balloon) => ({ val: balloon.val, isCorrect: balloon.isCorrect })),
+        };
+        saveProgress();
         btn.style.display = 'none';
         burstCelebration(btn);
         speak(['أَحْسَنْتْ', 'رائع', 'ممتاز'][Math.floor(Math.random() * 3)]);
+        challengeInstruction.textContent = `اختر الحرف ${letter.letter} (تبقى ${balloonRemaining})`;
 
-        challengeInstruction.textContent = `اختر الحرف ${letter.letter} (تبقى ${correctCount - poppedBalloons})`;
-
-        if (poppedBalloons >= correctCount) {
+        if (balloonRemaining <= 0) {
           setTimeout(() => {
             currentRound += 1;
+            balloonRemaining = 4;
+            currentChallengeSnapshot = null;
+            saveProgress();
             showChallengeRound();
           }, 800);
         }
       } else {
         score = Math.max(0, score - 1);
         starValue.textContent = score.toString();
+        saveProgress();
         btn.classList.add('wrong');
         speak('حاوِلْ مرة أخرى');
         setTimeout(() => btn.classList.remove('wrong'), 300);
@@ -316,15 +528,26 @@ function renderBalloonChallenge() {
   });
 }
 
-function renderImageChallenge(positionIndex = 0) {
+function renderImageChallenge(positionIndex = 0, snapshot = null) {
   if (scoreRow) scoreRow.style.display = 'flex';
   const letter = letters[currentLetterIndex];
-  const options = [
+  let options = snapshot && Array.isArray(snapshot.options) ? snapshot.options : [
     { label: letter.images[positionIndex], value: true },
     { label: letters[(currentLetterIndex + 1) % letters.length].images[positionIndex], value: false },
     { label: letters[(currentLetterIndex + 2) % letters.length].images[positionIndex], value: false },
     { label: letters[(currentLetterIndex + 3) % letters.length].images[positionIndex], value: false },
   ].sort(() => Math.random() - 0.5);
+
+  currentChallengeSnapshot = {
+    type: 'image',
+    letterId: letter.id,
+    currentRound,
+    score,
+    positionIndex,
+    options: options.map((item) => ({ label: item.label, value: item.value })),
+  };
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="option-grid"></div>';
   const grid = challengeArena.querySelector('.option-grid');
   options.forEach((item) => {
@@ -337,15 +560,26 @@ function renderImageChallenge(positionIndex = 0) {
   });
 }
 
-function renderWordChallenge(positionIndex = 0) {
+function renderWordChallenge(positionIndex = 0, snapshot = null) {
   if (scoreRow) scoreRow.style.display = 'flex';
   const letter = letters[currentLetterIndex];
-  const options = [
+  let options = snapshot && Array.isArray(snapshot.options) ? snapshot.options : [
     { label: letter.words[positionIndex], value: true },
     { label: letters[(currentLetterIndex + 1) % letters.length].words[positionIndex], value: false },
     { label: letters[(currentLetterIndex + 2) % letters.length].words[positionIndex], value: false },
     { label: letters[(currentLetterIndex + 3) % letters.length].words[positionIndex], value: false },
   ].sort(() => Math.random() - 0.5);
+
+  currentChallengeSnapshot = {
+    type: 'word',
+    letterId: letter.id,
+    currentRound,
+    score,
+    positionIndex,
+    options: options.map((item) => ({ label: item.label, value: item.value })),
+  };
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="option-grid"></div>';
   const grid = challengeArena.querySelector('.option-grid');
   options.forEach((item) => {
@@ -364,11 +598,14 @@ function handleAnswer(isCorrect, target) {
   if (isCorrect) {
     score = Math.min(10, score + 1);
     starValue.textContent = score.toString();
+    saveProgress();
     target.classList.add('success');
     burstCelebration(target);
     speak(['أَحْسَنْتْ', 'رائع', 'ممتاز'][Math.floor(Math.random() * 3)]);
     setTimeout(() => {
       currentRound += 1;
+      currentChallengeSnapshot = null;
+      saveProgress();
       if (currentRound >= 7) {
         finishStage();
       } else {
@@ -378,6 +615,7 @@ function handleAnswer(isCorrect, target) {
   } else {
     score = Math.max(0, score - 1);
     starValue.textContent = score.toString();
+    saveProgress();
     target.classList.add('wrong');
     speak('حاوِلْ مرة أخرى');
     setTimeout(() => target.classList.remove('wrong'), 300);
@@ -386,15 +624,20 @@ function handleAnswer(isCorrect, target) {
 
 function finishStage() {
   const letter = letters[currentLetterIndex];
+  const finalScore = score;
   completedLetters = [...new Set([...completedLetters, letter.id])];
-  if (score === 10) {
+  if (finalScore === 10) {
     badges += 1;
   }
-  stars += score;
-  saveProgress();
-  const medal = score === 10 ? '🥇 وسام ذهبي' : '';
+  stars += finalScore;
+  const nextLetterIndex = getNextLetterIndex();
+  currentLetterIndex = nextLetterIndex;
+  starCount.textContent = stars;
+  badgeCount.textContent = badges;
+  clearCurrentStageState();
+  const medal = finalScore === 10 ? '🥇 وسام ذهبي' : '';
   finishTitle.textContent = `أحسنت يا بطل لقد أنهيت حرف ${letter.letter}`;
-  finishScore.textContent = `${Math.min(score, 10)} / 10 ⭐`;
+  finishScore.textContent = `${Math.min(finalScore, 10)} / 10 ⭐`;
   finishMedal.textContent = medal;
   renderHome();
   showScreen('finish');
@@ -440,7 +683,7 @@ function renderStageActivities(recentLetters) {
   });
 }
 
-function renderStageLetterBalloonChallenge(stageLetters) {
+function renderStageLetterBalloonChallenge(stageLetters, snapshot = null) {
   if (scoreRow) scoreRow.style.display = 'none';
   currentStageLetters = stageLetters.slice(0, 4);
   const letterNames = currentStageLetters.map((item) => item.letter).join(' ');
@@ -449,15 +692,26 @@ function renderStageLetterBalloonChallenge(stageLetters) {
   const wrongLetters = letters
     .filter((item) => !currentStageLetters.some((letter) => letter.letter === item.letter))
     .map((item) => item.letter);
-  const balloons = [
+
+  let balloons = snapshot && Array.isArray(snapshot.options) ? snapshot.options : [
     ...currentStageLetters.map((item) => ({ val: item.letter, isCorrect: true })),
     ...Array.from({ length: 10 }, () => ({ val: wrongLetters[Math.floor(Math.random() * wrongLetters.length)], isCorrect: false })),
   ];
-  const shuffled = shuffleArray(balloons);
-  stageProgress = 0;
+
+  currentStageSnapshot = {
+    type: 'stage-balloon',
+    currentStageActivity,
+    stageProgress,
+    options: balloons.map((item) => ({ val: item.val, isCorrect: item.isCorrect })),
+    letters: currentStageLetters.map((item) => item.id),
+  };
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="balloons"></div>';
   const arena = challengeArena.querySelector('.balloons');
-  shuffled.forEach((item) => {
+  balloons = shuffleArray(balloons);
+
+  balloons.forEach((item) => {
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = 'balloon';
@@ -473,9 +727,11 @@ function renderStageLetterBalloonChallenge(stageLetters) {
         btn.style.display = 'none';
         burstCelebration(btn);
         speak(['أَحْسَنْتْ', 'رائع', 'ممتاز'][Math.floor(Math.random() * 3)]);
+        saveProgress();
         if (stageProgress >= currentStageLetters.length) {
           setTimeout(() => {
             speak('مَرْحباً بالمرحلة التالية');
+            clearCurrentStageState();
             showScreen('stage');
           }, 800);
         }
@@ -490,10 +746,11 @@ function renderStageLetterBalloonChallenge(stageLetters) {
   showScreen('challenge');
 }
 
-function renderStageImageChallengeRound() {
+function renderStageImageChallengeRound(snapshot = null) {
   if (scoreRow) scoreRow.style.display = 'none';
   if (stageChallengeRound >= stageChallengeMaxRounds) {
     speak('انتهت المرحلة الثانية');
+    clearCurrentStageState();
     showScreen('stage');
     return;
   }
@@ -503,12 +760,23 @@ function renderStageImageChallengeRound() {
   challengeTitle.textContent = 'اختر الصورة المناسبة';
   challengeInstruction.textContent = `جولة ${stageChallengeRound + 1} من ${stageChallengeMaxRounds}: اختر الصورة التي ${positionLabels[positionIndex]} بحرف ${targetLetter.letter}`;
   const wrongLetters = shuffleArray(letters.filter((item) => item.id !== targetLetter.id));
-  const options = shuffleArray([
+  let options = snapshot && Array.isArray(snapshot.options) ? snapshot.options : shuffleArray([
     { label: targetLetter.images[positionIndex], value: true },
     { label: wrongLetters[0].images[positionIndex], value: false },
     { label: wrongLetters[1].images[positionIndex], value: false },
     { label: wrongLetters[2].images[positionIndex], value: false },
   ]);
+
+  currentStageSnapshot = {
+    type: 'stage-image',
+    currentStageActivity,
+    stageChallengeRound,
+    stageChallengeMaxRounds,
+    options: options.map((item) => ({ label: item.label, value: item.value })),
+    letters: currentStageLetters.map((item) => item.id),
+  };
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="option-grid"></div>';
   const grid = challengeArena.querySelector('.option-grid');
   options.forEach((item) => {
@@ -524,6 +792,8 @@ function renderStageImageChallengeRound() {
         burstCelebration(btn);
         speak(['أَحْسَنْتْ', 'رائع', 'ممتاز'][Math.floor(Math.random() * 3)]);
         stageChallengeRound += 1;
+        currentStageSnapshot = null;
+        saveProgress();
         setTimeout(renderStageImageChallengeRound, 800);
       } else {
         btn.classList.add('wrong');
@@ -536,10 +806,11 @@ function renderStageImageChallengeRound() {
   showScreen('challenge');
 }
 
-function renderStageWordChallengeRound() {
+function renderStageWordChallengeRound(snapshot = null) {
   if (scoreRow) scoreRow.style.display = 'none';
   if (stageChallengeRound >= stageChallengeMaxRounds) {
     speak('انتهت المرحلة الثالثة');
+    clearCurrentStageState();
     showScreen('stage');
     return;
   }
@@ -549,12 +820,23 @@ function renderStageWordChallengeRound() {
   challengeTitle.textContent = 'اختر الكلمة المناسبة';
   challengeInstruction.textContent = `جولة ${stageChallengeRound + 1} من ${stageChallengeMaxRounds}: اختر الكلمة التي ${positionLabels[positionIndex]} بحرف ${targetLetter.letter}`;
   const wrongLetters = shuffleArray(letters.filter((item) => item.id !== targetLetter.id));
-  const options = shuffleArray([
+  let options = snapshot && Array.isArray(snapshot.options) ? snapshot.options : shuffleArray([
     { label: targetLetter.words[positionIndex], value: true },
     { label: wrongLetters[0].words[positionIndex], value: false },
     { label: wrongLetters[1].words[positionIndex], value: false },
     { label: wrongLetters[2].words[positionIndex], value: false },
   ]);
+
+  currentStageSnapshot = {
+    type: 'stage-word',
+    currentStageActivity,
+    stageChallengeRound,
+    stageChallengeMaxRounds,
+    options: options.map((item) => ({ label: item.label, value: item.value })),
+    letters: currentStageLetters.map((item) => item.id),
+  };
+  saveProgress();
+
   challengeArena.innerHTML = '<div class="option-grid"></div>';
   const grid = challengeArena.querySelector('.option-grid');
   options.forEach((item) => {
@@ -570,6 +852,8 @@ function renderStageWordChallengeRound() {
         burstCelebration(btn);
         speak(['أَحْسَنْتْ', 'رائع', 'ممتاز'][Math.floor(Math.random() * 3)]);
         stageChallengeRound += 1;
+        currentStageSnapshot = null;
+        saveProgress();
         setTimeout(renderStageWordChallengeRound, 800);
       } else {
         btn.classList.add('wrong');
@@ -589,7 +873,9 @@ function startStageActivity(index, recentLetters) {
     currentStageLetters = letters.slice(0, 4);
   }
   stageProgress = 0;
+  saveProgress();
   if (index === 0) {
+    saveProgress();
     renderStageLetterBalloonChallenge(currentStageLetters);
     return;
   }
@@ -598,6 +884,7 @@ function startStageActivity(index, recentLetters) {
     stageChallengeRound = 0;
     stageChallengeMaxRounds = 10;
     currentStageLetters = shuffleArray(currentStageLetters);
+    saveProgress();
     renderStageImageChallengeRound();
     return;
   }
@@ -605,6 +892,7 @@ function startStageActivity(index, recentLetters) {
   stageChallengeRound = 0;
   stageChallengeMaxRounds = 10;
   currentStageLetters = shuffleArray(currentStageLetters);
+  saveProgress();
   renderStageWordChallengeRound();
 }
 
@@ -619,6 +907,8 @@ function showScreen(screenName) {
   if (screenName === 'challenge') challengeScreen.classList.add('active');
   if (screenName === 'stage') stageChallengeScreen.classList.add('active');
   if (screenName === 'finish') finishScreen.classList.add('active');
+  currentScreen = screenName;
+  saveProgress();
 }
 
 function speak(text) {
@@ -631,19 +921,80 @@ function speak(text) {
   }
 }
 
+function resumeSession() {
+  renderHome();
+  if (currentScreen === 'learn') {
+    renderLearn();
+    showScreen('learn');
+    return;
+  }
+  if (currentScreen === 'stageSelect') {
+    showScreen('stageSelect');
+    return;
+  }
+  if (currentScreen === 'challenge') {
+    starValue.textContent = score.toString();
+    if (currentStageActivity !== null) {
+      if (currentStageActivity === 0) {
+        renderStageLetterBalloonChallenge(currentStageLetters.length ? currentStageLetters : letters.slice(0, 4), currentStageSnapshot);
+      } else if (currentStageActivity === 1) {
+        renderStageImageChallengeRound(currentStageSnapshot);
+      } else if (currentStageActivity === 2) {
+        renderStageWordChallengeRound(currentStageSnapshot);
+      } else {
+        showChallengeRound();
+      }
+    } else if (currentChallengeSnapshot) {
+      showChallengeRound();
+    } else {
+      showChallengeRound();
+    }
+    return;
+  }
+  if (currentScreen === 'stage') {
+    if (currentStageActivity === null) {
+      renderStageActivities(currentStageLetters.length ? currentStageLetters : undefined);
+      showScreen('stage');
+      return;
+    }
+    if (currentStageActivity === 0) {
+      renderStageLetterBalloonChallenge(currentStageLetters.length ? currentStageLetters : letters.slice(0, 4), currentStageSnapshot);
+    } else if (currentStageActivity === 1) {
+      renderStageImageChallengeRound(currentStageSnapshot);
+    } else if (currentStageActivity === 2) {
+      renderStageWordChallengeRound(currentStageSnapshot);
+    } else {
+      renderStageActivities(currentStageLetters.length ? currentStageLetters : undefined);
+      showScreen('stage');
+    }
+    return;
+  }
+  if (currentScreen === 'finish') {
+    showScreen('finish');
+    return;
+  }
+  showScreen('home');
+}
+
 function bindEvents() {
   document.getElementById('startBtn').onclick = () => {
-    const firstUncompleted = letters.findIndex(l => !completedLetters.includes(l.id));
-    const resumeIndex = completedLetters.includes(currentLetterIndex) ? firstUncompleted : currentLetterIndex;
-    currentLetterIndex = resumeIndex === -1 ? 0 : resumeIndex;
-    score = 0;
-    starValue.textContent = '0';
+    currentLetterIndex = getNextLetterIndex();
+
+    // لا نعيد تعيين المرحلة إذا كانت هناك حالة محفوظة سابقة، بل نستأنفها كما هي.
+    if (currentScreen !== 'challenge' && !currentChallengeSnapshot && currentStageActivity === null && currentRound === 0 && stageChallengeRound === 0 && stageProgress === 0 && balloonRemaining === 4) {
+      score = 0;
+      starValue.textContent = '0';
+    } else {
+      starValue.textContent = score.toString();
+    }
+
     saveProgress();
     renderLearn();
     showScreen('learn');
   };
   document.getElementById('stageBtn').onclick = () => {
     renderHome();
+    starValue.textContent = score.toString();
     showScreen('stageSelect');
   };
   const backStageSelectBtn = document.getElementById('backStageSelectBtn');
@@ -655,6 +1006,13 @@ function bindEvents() {
     backStageChallengeBtn.onclick = () => showScreen('stageSelect');
   }
   document.getElementById('settingsBtn').onclick = () => showScreen('guide');
+  window.addEventListener('beforeunload', saveProgress);
+  window.addEventListener('pagehide', saveProgress);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') {
+      saveProgress();
+    }
+  });
   const backGuideBtn = document.getElementById('backGuideBtn');
   if (backGuideBtn) {
     backGuideBtn.onclick = () => showScreen('home');
@@ -664,13 +1022,40 @@ function bindEvents() {
     const letter = letters[currentLetterIndex];
     speak(letter.pronunciation);
   };
-  document.getElementById('challengeBtn').onclick = startChallenge;
+  document.getElementById('challengeBtn').onclick = () => {
+    const hasOngoingStageActivity = currentStageActivity !== null && currentStageActivity >= 0 && currentStageActivity <= 2;
+    const hasOngoingMainChallenge = currentScreen === 'challenge' || (currentRound > 0 && currentRound < 7) || (currentRound === 0 && balloonRemaining < 4 && currentScreen !== 'home' && currentScreen !== 'learn' && currentScreen !== 'finish');
+
+    if (hasOngoingStageActivity) {
+      starValue.textContent = score.toString();
+      if (currentStageLetters && currentStageLetters.length) renderStageActivities(currentStageLetters);
+      if (currentStageActivity === 0) renderStageLetterBalloonChallenge(currentStageLetters.length ? currentStageLetters : letters.slice(0, 4));
+      else if (currentStageActivity === 1) renderStageImageChallengeRound();
+      else if (currentStageActivity === 2) renderStageWordChallengeRound();
+      else showScreen('stage');
+      return;
+    }
+
+    if (hasOngoingMainChallenge) {
+      starValue.textContent = score.toString();
+      showChallengeRound();
+      showScreen('challenge');
+      return;
+    }
+
+    startChallenge();
+  };
   document.getElementById('finishBtn').onclick = () => {
     showScreen('stageSelect');
   };
 }
 
 loadProgress();
+
+starCount.textContent = stars;
+badgeCount.textContent = badges;
+starValue.textContent = score.toString();
+
 bindEvents();
 renderHome();
-showScreen('home');
+resumeSession();
