@@ -70,6 +70,36 @@ let stageChallengeRound = 0;
 let stageChallengeMaxRounds = 0;
 let stageChallengeMode = '';
 
+const STORAGE_KEY = 'alphapetProgress';
+
+function loadProgress() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    completedLetters = Array.isArray(saved.completedLetters) ? saved.completedLetters : [];
+    stars = typeof saved.stars === 'number' ? saved.stars : 0;
+    badges = typeof saved.badges === 'number' ? saved.badges : 0;
+    currentLetterIndex = typeof saved.currentLetterIndex === 'number' ? saved.currentLetterIndex : 0;
+  } catch (error) {
+    console.warn('Failed to load saved progress:', error);
+  }
+}
+
+function saveProgress() {
+  try {
+    const payload = {
+      completedLetters,
+      stars,
+      badges,
+      currentLetterIndex,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn('Failed to save progress:', error);
+  }
+}
+
 const homeScreen = document.getElementById('homeScreen');
 const stageSelectScreen = document.getElementById('stageSelectScreen');
 const learnScreen = document.getElementById('learnScreen');
@@ -132,6 +162,7 @@ function renderHome() {
         currentLetterIndex = index;
         score = 0;
         starValue.textContent = '0';
+        saveProgress();
         renderLearn();
         showScreen('learn');
       };
@@ -360,6 +391,7 @@ function finishStage() {
     badges += 1;
   }
   stars += score;
+  saveProgress();
   const medal = score === 10 ? '🥇 وسام ذهبي' : '';
   finishTitle.textContent = `أحسنت يا بطل لقد أنهيت حرف ${letter.letter}`;
   finishScore.textContent = `${Math.min(score, 10)} / 10 ⭐`;
@@ -602,9 +634,11 @@ function speak(text) {
 function bindEvents() {
   document.getElementById('startBtn').onclick = () => {
     const firstUncompleted = letters.findIndex(l => !completedLetters.includes(l.id));
-    currentLetterIndex = firstUncompleted === -1 ? 0 : firstUncompleted;
+    const resumeIndex = completedLetters.includes(currentLetterIndex) ? firstUncompleted : currentLetterIndex;
+    currentLetterIndex = resumeIndex === -1 ? 0 : resumeIndex;
     score = 0;
     starValue.textContent = '0';
+    saveProgress();
     renderLearn();
     showScreen('learn');
   };
@@ -636,6 +670,7 @@ function bindEvents() {
   };
 }
 
+loadProgress();
 bindEvents();
 renderHome();
 showScreen('home');
