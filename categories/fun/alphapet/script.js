@@ -911,14 +911,44 @@ function showScreen(screenName) {
   saveProgress();
 }
 
-function speak(text) {
-  if ('speechSynthesis' in window) {
+async function speak(text) {
+
+  // تشغيل داخل تطبيق Capacitor Android
+  if (window.Capacitor && window.Capacitor.isNativePlatform()) {
+
+    try {
+      const { TextToSpeech } = window.Capacitor.Plugins;
+
+      await TextToSpeech.speak({
+        text: text,
+        lang: "ar-SA",
+        rate: 0.95,
+        pitch: 1.0,
+        volume: 1.0
+      });
+
+    } catch (error) {
+      console.error("خطأ في صوت التطبيق:", error);
+    }
+
+    return;
+  }
+
+
+  // تشغيل على الموقع (Chrome)
+  if ("speechSynthesis" in window) {
+
     window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = 'ar-SA';
+
+    utterance.lang = "ar-SA";
     utterance.rate = 0.95;
+    utterance.pitch = 1;
+
     window.speechSynthesis.speak(utterance);
   }
+
 }
 
 function resumeSession() {
