@@ -1,3 +1,13 @@
+@font-face {
+    font-family: 'Tajawal';
+    src: url('Tajawal-Bold.ttf') format('truetype');
+    font-weight: 700;
+}
+@font-face {
+    font-family: 'Tajawal';
+    src: url('Tajawal-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+}
 :root {
   --red: #ff5252;
   --green: #4caf50;
