@@ -946,18 +946,21 @@ function showScreen(screenName) {
   saveProgress();
 }
 
-function speak(text) {
-  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.TextToSpeech) {
-    window.Capacitor.Plugins.TextToSpeech.speak({ value: text, lang: 'ar-SA' }).catch(() => {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'ar-SA';
-        utterance.rate = 0.95;
-        window.speechSynthesis.speak(utterance);
-      }
-    });
-    return;
+async function speak(text) {
+  const ttsPlugin = window.Capacitor?.Plugins?.TextToSpeech;
+  if (ttsPlugin && typeof ttsPlugin.speak === 'function') {
+    try {
+      await ttsPlugin.speak({
+        text,
+        lang: 'ar-SA',
+        rate: 0.95,
+        pitch: 1.0,
+        volume: 1.0,
+      });
+      return;
+    } catch (error) {
+      console.warn('TextToSpeech plugin failed:', error);
+    }
   }
 
   if ('speechSynthesis' in window) {
@@ -965,8 +968,12 @@ function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'ar-SA';
     utterance.rate = 0.95;
+    utterance.pitch = 1.0;
     window.speechSynthesis.speak(utterance);
+    return;
   }
+
+  console.warn('لا يتوفر دعم الصوت في هذه البيئة.');
 }
 
 function resumeSession() {
